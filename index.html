@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Extraction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #000428, #004e92);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 50px;
+            box-shadow: 0 10px 50px rgba(31, 38, 135, 0.37);
+        }
+
+        h2 {
+            text-align: center;
+            color: #00f3ff;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+            font-size: 2.5em;
+            margin-bottom: 40px;
+        }
+
+        .form-group label {
+            color: #fff;
+            font-weight: 300;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .custom-file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        .custom-file-upload:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .custom-file-upload i {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .custom-file-upload input {
+            display: none;
+        }
+
+        .file-name-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 1em;
+        }
+
+        .file-name {
+            color: #00f3ff;
+            font-weight: bold;
+        }
+
+        .cancel-btn {
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: 0.3s ease;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255, 0, 0, 1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00f3ff, #0069ff);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            font-size: 1.2em;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 243, 255, 0.4);
+        }
+
+        .btn i {
+            margin-right: 10px;
+        }
+
+        hr {
+            border-color: rgba(255, 255, 255, 0.1);
+            margin: 30px 0;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding-left: 40px;
+            border-radius: 8px;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: gray;
+        }
+
+        /* Animated Balls Background */
+        .balls-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 243, 255, 0.1);
+            animation: float 15s infinite linear;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(100px, 100px) rotate(90deg);
+            }
+            50% {
+                transform: translate(-50px, 200px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-100px, -100px) rotate(270deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="balls-container" id="ballsContainer"></div>
+    
+    <div class="container">
+        <div class="icon-container text-center">
+            <i class="fas fa-key fa-3x" style="color: #00f3ff;"></i>
+        </div>
+
+        <h2>Keyword Extraction</h2>
+        <form method="POST" action="/extract_keywords" enctype="multipart/form-data">
+            <div class="form-group text-center">
+                <label class="custom-file-upload">
+                    <i class="fas fa-file-upload"></i>
+                    <span>Choose a file</span>
+                    <input type="file" name="file" id="document" onchange="displayFileName()">
+                </label>
+                <div class="file-name-container" id="file-info" style="display: none;">
+                    <span id="file-name" class="file-name"></span>
+                    <button type="button" class="cancel-btn" onclick="cancelFile()">Cancel</button>
+                </div>
+            </div>
+            <button type="submit" class="btn">
+                <i class="fas fa-magic"></i> Extract Keywords
+            </button>
+        </form>
+        <hr>
+        <form method="POST" action="/search_keywords">
+            <div class="form-group search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" class="form-control" id="search" placeholder="Search Keywords">
+            </div>
+            <button type="submit" class="btn">
+                <i class="fas fa-search-location"></i> Search
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function displayFileName() {
+            var input = document.getElementById('document');
+            var fileName = input.files.length > 0 ? input.files[0].name : "";
+            var fileInfo = document.getElementById('file-info');
+            var fileNameDisplay = document.getElementById('file-name');
+
+            if (fileName) {
+                fileNameDisplay.textContent = fileName;
+                fileInfo.style.display = "flex";
+            } else {
+                fileInfo.style.display = "none";
+            }
+        }
+
+        function cancelFile() {
+            var input = document.getElementById('document');
+            input.value = "";
+            document.getElementById('file-info').style.display = "none";
+        }
+
+        // Animated Balls Script
+        function createBalls() {
+            const container = document.getElementById('ballsContainer');
+            const numberOfBalls = 15;
+
+            for (let i = 0; i < numberOfBalls; i++) {
+                const ball = document.createElement('div');
+                ball.className = 'ball';
+                
+                const size = Math.random() * 60 + 20;
+                ball.style.width = `${size}px`;
+                ball.style.height = `${size}px`;
+                
+                ball.style.left = `${Math.random() * window.innerWidth}px`;
+                ball.style.top = `${Math.random() * window.innerHeight}px`;
+                
+                ball.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                ball.style.animationDelay = `${Math.random() * 5}s`;
+                
+                const colorVariation = Math.random();
+                ball.style.background = `rgba(0, 243, 255, ${0.1 + colorVariation * 0.1})`;
+                
+                container.appendChild(ball);
+            }
+        }
+
+        createBalls();
+
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('ballsContainer');
+            container.innerHTML = '';
+            createBalls();
+        });
+    </script>
+</body>
+</html>
